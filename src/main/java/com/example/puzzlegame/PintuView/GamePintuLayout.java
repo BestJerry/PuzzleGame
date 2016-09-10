@@ -3,6 +3,7 @@ package com.example.puzzlegame.PintuView;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.View;
@@ -152,9 +153,48 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
 
     }
 
+    private ImageView mfirst;
+    private ImageView msecond;
 
     @Override
     public void onClick(View view) {
+
+        //两次点击同一个item，取消选择
+        if (mfirst == view) {
+            mfirst.setColorFilter(null);
+            mfirst = null;
+            return;
+        }
+        if (mfirst == null) {
+            mfirst = (ImageView) view;
+            mfirst.setColorFilter(Color.parseColor("#50FF0000"));
+        } else {
+            msecond = (ImageView) view;
+            //交换item
+            exchangerview();
+        }
+
+
+    }
+
+    //交换item
+    private void exchangerview() {
+        mfirst.setColorFilter(null);
+        String firsttag = (String) mfirst.getTag();
+        String secondtag = (String) msecond.getTag();
+
+        String[] firstparams = firsttag.split("_");
+        String[] secondparams = secondtag.split("_");
+
+        Bitmap firstbitmap = mitembitmaps.get(Integer.parseInt(firstparams[0])).getBitmap();
+
+        Bitmap secondbitmap = mitembitmaps.get(Integer.parseInt(secondparams[0])).getBitmap();
+        msecond.setImageBitmap(firstbitmap);
+        mfirst.setImageBitmap(secondbitmap);
+
+        mfirst.setTag(secondtag);
+        msecond.setTag(firsttag);
+        mfirst = msecond = null;
 
     }
 }
