@@ -4,13 +4,17 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.os.Handler;
+import android.os.Message;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.example.puzzlegame.R;
 import com.example.puzzlegame.Util.ImagePiece;
@@ -25,6 +29,9 @@ import java.util.List;
  */
 public class GamePintuLayout extends RelativeLayout implements View.OnClickListener {
 
+
+    private static final String TAG = "GamePintuLayout";
+
     private int mColumn = 3;
     //容器的内边距
     private int mPadding;
@@ -33,6 +40,88 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
 
     //游戏面板的宽度
     private int mwidth;
+
+    private boolean isgamesuccess;
+    private boolean isgameover;
+
+
+    private int mlevel = 1;
+
+
+    public interface Gamepintulistener {
+
+        void nextlevel(int nextlevel);
+
+        void timechanged(int currenttime);
+
+        void gameover();
+
+    }
+
+    //设置接口回调
+    public void setOnGamePintulistener(Gamepintulistener mlistener) {
+        this.mlistener = mlistener;
+    }
+
+    private Gamepintulistener mlistener;
+
+
+    private static final int Time_changed = 0x110;
+    private static final int NEXT_LEVEL = 0x111;
+
+    private boolean istimeenable = false;
+    private int mtime;
+
+
+    private Handler mhandler = new Handler() {
+
+        @Override
+        public void handleMessage(Message msg) {
+
+            switch (msg.what) {
+
+                case Time_changed:
+                    if (isgamesuccess || isgameover || ispause)
+                        return;
+
+
+                    if (mlistener != null) {
+
+                        mlistener.timechanged(mtime);
+
+                    }
+                    if (mtime == 0) {
+                        isgameover = true;
+                        mlistener.gameover();
+                        return;
+                    }
+                    mtime--;
+                    mhandler.sendEmptyMessageDelayed(Time_changed, 1000);
+
+
+                    break;
+                case NEXT_LEVEL:
+
+                    mlevel += 1;
+                    if (mlistener != null) {
+                        mlistener.nextlevel(mlevel);
+                    } else {
+                        nextlevel();
+                    }
+
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    };
+
+
+    //设置是否开启时间
+    public void setIstimeenable(boolean istimeenable) {
+        this.istimeenable = istimeenable;
+    }
 
     private ImageView[] mGamepintuItems;
 
@@ -76,9 +165,29 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
             initbitmap();
             //设置imageview（item）的宽高等属性
             inititem();
+            //判断是否开启时间
+            checktimeenable();
             once = true;
         }
         setMeasuredDimension(mwidth, mwidth);
+
+    }
+
+    private void checktimeenable() {
+
+        if (istimeenable) {
+
+            //根据当前等级设置时间
+            counttimebaselevel();
+            mhandler.sendEmptyMessage(Time_changed);
+
+        }
+
+    }
+
+    private void counttimebaselevel() {
+
+        mtime = (int) Math.pow(2, mlevel) * 30;
 
     }
 
@@ -128,7 +237,7 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
     private void initbitmap() {
         if (mBitmap == null) {
 
-            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test1);
+            mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test2);
 
         }
         mitembitmaps = ImageSplitterUtil.splitImage(mBitmap, mColumn);
@@ -140,6 +249,48 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
 
             }
         });
+    }
+
+
+    public void restart() {
+
+        isgameover = false;
+        mColumn--;
+        nextlevel();
+    }
+
+
+    private boolean ispause;
+
+    public void resume() {
+
+        if (ispause) {
+            ispause = false;
+            mhandler.sendEmptyMessage(Time_changed);
+
+        }
+
+    }
+
+
+    public void pause() {
+
+        ispause = true;
+        mhandler.removeMessages(Time_changed);
+
+    }
+
+
+    public void nextlevel() {
+
+        this.removeAllViews();
+        manimlayout = null;
+        isgamesuccess = false;
+        mColumn++;
+        checktimeenable();
+        initbitmap();
+        inititem();
+
     }
 
     //获取多个参数的最小值
@@ -261,6 +412,8 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
                 mfirst = msecond = null;
                 //移除动画层
                 manimlayout.removeAllViews();
+                //判断用户游戏是否完成
+                checksuccess();
                 isaniming = false;
 
 
@@ -275,6 +428,36 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
 
     }
 
+    private void checksuccess() {
+
+        boolean issuccess = true;
+
+        for (int i = 0; i < mGamepintuItems.length; i++) {
+
+            ImageView imageview = mGamepintuItems[i];
+
+            if (getimageindexbytag((String) imageview.getTag()) != i) {
+
+                issuccess = false;
+
+            }
+
+        }
+
+        if (issuccess) {
+
+            isgamesuccess = true;
+            mhandler.removeMessages(Time_changed);
+
+            Log.e(TAG, "Success!");
+            Toast.makeText(getContext(), "Success , next Level .", Toast.LENGTH_LONG).show();
+
+            mhandler.sendEmptyMessage(NEXT_LEVEL);
+
+
+        }
+    }
+
     //根据tag获取id
     public int getimageidbytag(String tag) {
 
@@ -284,7 +467,7 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
 
     }
 
-    public int getimageindex(String tag) {
+    public int getimageindexbytag(String tag) {
         String[] split = tag.split("_");
         return Integer.parseInt(split[1]);
     }
@@ -295,7 +478,6 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
         if (manimlayout == null) {
             manimlayout = new RelativeLayout(getContext());
             addView(manimlayout);
-
         }
     }
 }
