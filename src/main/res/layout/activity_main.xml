@@ -1,43 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <com.example.puzzlegame.PintuView.GamePintuLayout
-        android:id="@+id/id_GamePintu"
+    <com.example.puzzlegame.TitleLayout
+        android:id="@+id/title_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_centerInParent="true"
-        android:padding="4dp" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true">
+
+    </com.example.puzzlegame.TitleLayout>
+
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/id_GamePintu"
-        android:layout_margin="10dp">
+        android:layout_below="@id/title_layout"
+        android:layout_margin="1dp">
+
 
         <TextView
             android:id="@+id/id_level"
-            android:layout_width="70dp"
+            android:layout_width="190dp"
             android:layout_height="70dp"
+            android:layout_alignParentLeft="true"
             android:background="@drawable/level"
             android:gravity="center"
-            android:padding="3dp"
-            android:text="1"
+            android:padding="2dp"
+            android:text="当前关卡：1"
             android:textColor="#e2bb0c"
-            android:textSize="20sp" />
+            android:textSize="16sp" />
 
         <TextView
             android:id="@+id/id_time"
-            android:layout_width="70dp"
+            android:layout_width="190dp"
             android:layout_height="70dp"
             android:layout_alignParentRight="true"
             android:background="@drawable/time"
             android:gravity="center"
-            android:padding="3dp"
-            android:text="30"
+            android:padding="2dp"
+            android:text="剩余时间：30"
             android:textColor="#1508d4"
-            android:textSize="20sp" />
+            android:textSize="16sp" />
+
+        <com.example.puzzlegame.PintuView.GamePintuLayout
+            android:id="@+id/id_GamePintu"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@id/id_time"
+            android:padding="2dp" />
     </RelativeLayout>
+
+
 </RelativeLayout>

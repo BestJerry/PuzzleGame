@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include layout="@layout/title_first"/>
+
+    <Button
+        android:id="@+id/start_game"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/level"
+        android:text="开始游戏" />
+
+    <Button
+        android:id="@+id/game_help"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/time"
+        android:text="游戏说明" />
+
+    <Button
+        android:id="@+id/finish_game"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/level"
+        android:text="退出游戏" />
+
+
+</LinearLayout>

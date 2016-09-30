@@ -13,7 +13,7 @@ public class ImageSplitterUtil {
     /*传入bitmap，切成piece*piece块，返回list<imagepiece>*/
     public static List<ImagePiece> splitImage(Bitmap bitmap, int piece) {
         List<ImagePiece> imagePieces = new ArrayList<>();
-
+        //制成正方形
         int width = bitmap.getWidth();
         int height = bitmap.getHeight();
 

@@ -1,14 +1,15 @@
 package com.example.puzzlegame;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.view.Window;
 import android.widget.TextView;
 
 import com.example.puzzlegame.PintuView.GamePintuLayout;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends Activity {
 
     private GamePintuLayout mgamePintuLayout;
 
@@ -19,7 +20,9 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+        ActivityCollector.addAcitivity(this);
 
         mgamePintuLayout = (GamePintuLayout) findViewById(R.id.id_GamePintu);
         mgamePintuLayout.setIstimeenable(true);
@@ -31,20 +34,20 @@ public class MainActivity extends AppCompatActivity {
             public void nextlevel(final int nextlevel) {
 
                 new AlertDialog.Builder(MainActivity.this).setTitle("Information").setMessage("闯关成功！")
-                        .setPositiveButton("继续闯关", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
+                        .setCancelable(false).setPositiveButton("继续闯关", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
 
-                                mgamePintuLayout.nextlevel();
-                                mlevel.setText("" + nextlevel);
-                            }
-                        }).show();
+                        mgamePintuLayout.nextlevel();
+                        mlevel.setText("当前关卡：" + nextlevel);
+                    }
+                }).show();
             }
 
             @Override
             public void timechanged(int currenttime) {
 
-                mtime.setText("" + currenttime);
+                mtime.setText("剩余时间：" + currenttime);
 
             }
 
@@ -64,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
 
-                        finish();
+                        ActivityCollector.finishAll();
                     }
                 }).show();
             }

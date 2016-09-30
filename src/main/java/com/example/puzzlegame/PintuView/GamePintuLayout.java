@@ -7,21 +7,18 @@ import android.graphics.Color;
 import android.os.Handler;
 import android.os.Message;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.example.puzzlegame.R;
 import com.example.puzzlegame.Util.ImagePiece;
 import com.example.puzzlegame.Util.ImageSplitterUtil;
 
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -36,7 +33,7 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
     //容器的内边距
     private int mPadding;
     //每张小图间的距离（横纵）dp
-    private int mMagin = 3;
+    private int mMagin = 2;
 
     //游戏面板的宽度
     private int mwidth;
@@ -187,7 +184,14 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
 
     private void counttimebaselevel() {
 
-        mtime = (int) Math.pow(2, mlevel) * 30;
+        if (mlevel / 5 == 0) {
+            mtime = 60;
+        } else if (mlevel / 5 == 1) {
+            mtime = 180;
+        } else {
+            mtime = 360;
+        }
+        // mtime = (int) Math.pow(2, mlevel) * 30;
 
     }
 
@@ -209,7 +213,7 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
 
             RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(mItemWidth, mItemWidth);
             //设置item间横向间隙，不是最后一列，设置rightwidth
-            if ((i + 1 % mColumn) != 0) {
+            if ((i + 1) % mColumn != 0) {
                 lp.rightMargin = mMagin;
 
             }
@@ -218,7 +222,7 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
                 lp.addRule(RelativeLayout.RIGHT_OF, mGamepintuItems[i - 1].getId());
             }
 
-            //如果不是第一行,谁知topmargin和rule
+            //如果不是第一行,设置topmargin和rule
             if ((i + 1) > mColumn) {
                 lp.topMargin = mMagin;
                 lp.addRule(RelativeLayout.BELOW, mGamepintuItems[i - mColumn].getId());
@@ -234,28 +238,39 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
     }
 
     //进行切图及排序
+    private int[] pic = {R.drawable.test1, R.drawable.test2, R.drawable.test3, R.drawable.test4,
+            R.drawable.test5, R.drawable.test6, R.drawable.test7, R.drawable.test8, R.drawable.test9,
+            R.drawable.test10, R.drawable.test11, R.drawable.test12, R.drawable.test13};
+
     private void initbitmap() {
-        if (mBitmap == null) {
+        /*if (mBitmap == null) {
 
             mBitmap = BitmapFactory.decodeResource(getResources(), R.drawable.test2);
 
-        }
+        }*/
+        mBitmap = BitmapFactory.decodeResource(getResources(), pic[(mlevel - 1) % 15]);
         mitembitmaps = ImageSplitterUtil.splitImage(mBitmap, mColumn);
         //使用sort完成乱序
-        Collections.sort(mitembitmaps, new Comparator<ImagePiece>() {
+        /*Collections.sort(mitembitmaps, new Comparator<ImagePiece>() {
             @Override
             public int compare(ImagePiece a, ImagePiece b) {
                 return Math.random() > 0.5 ? 1 : -1;
 
             }
-        });
+        });*/
+        Collections.shuffle(mitembitmaps);
     }
 
 
     public void restart() {
 
         isgameover = false;
-        mColumn--;
+        if (mlevel > 5) {
+            mColumn--;
+        } else if (mlevel > 10) {
+            mColumn--;
+
+        }
         nextlevel();
     }
 
@@ -286,7 +301,11 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
         this.removeAllViews();
         manimlayout = null;
         isgamesuccess = false;
-        mColumn++;
+        if (mlevel > 5 && mlevel <= 10) {
+            mColumn++;
+        } else if (mlevel > 10) {
+            mColumn++;
+        }
         checktimeenable();
         initbitmap();
         inititem();
@@ -323,7 +342,7 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
         }
         if (mfirst == null) {
             mfirst = (ImageView) view;
-            mfirst.setColorFilter(Color.parseColor("#50FF0000"));
+            mfirst.setColorFilter(Color.parseColor("#500011FF"));
         } else {
             msecond = (ImageView) view;
             //交换item
@@ -449,8 +468,7 @@ public class GamePintuLayout extends RelativeLayout implements View.OnClickListe
             isgamesuccess = true;
             mhandler.removeMessages(Time_changed);
 
-            Log.e(TAG, "Success!");
-            Toast.makeText(getContext(), "Success , next Level .", Toast.LENGTH_LONG).show();
+            //Toast.makeText(getContext(), "闯关成功.", Toast.LENGTH_LONG).show();
 
             mhandler.sendEmptyMessage(NEXT_LEVEL);
 
